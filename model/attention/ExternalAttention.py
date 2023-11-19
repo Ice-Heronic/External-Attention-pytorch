@@ -3,7 +3,10 @@ import torch
 from torch import nn
 from torch.nn import init
 
-
+# Input: F, an array with shape [B, N, C] (batch size, pixels, channels)
+# Parameter: M_k, a linear layer without bias
+# Parameter: M_v, a linear layer without bias
+# Output: out, an array with shape [B, N, C]
 
 class ExternalAttention(nn.Module):
 
@@ -35,13 +38,14 @@ class ExternalAttention(nn.Module):
         attn=attn/torch.sum(attn,dim=2,keepdim=True) #bs,n,S
         out=self.mv(attn) #bs,n,d_model
 
-        return out
+        return out, attn # also return the attention weights
 
 
 if __name__ == '__main__':
     input=torch.randn(50,49,512)
     ea = ExternalAttention(d_model=512,S=8)
-    output=ea(input)
+    output, outputattn =ea(input)
     print(output.shape)
+    print(outputattn.shape)
 
     

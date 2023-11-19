@@ -29,12 +29,12 @@ class ECAAttention(nn.Module):
                     init.constant_(m.bias, 0)
 
     def forward(self, x):
-        y=self.gap(x) #bs,c,1,1
+        y=self.gap(x) #bs,c,1,1  # 获取全局平均值，降维至 (batch_size, channels, 1, 1)
         y=y.squeeze(-1).permute(0,2,1) #bs,1,c
-        y=self.conv(y) #bs,1,c
-        y=self.sigmoid(y) #bs,1,c
-        y=y.permute(0,2,1).unsqueeze(-1) #bs,c,1,1
-        return x*y.expand_as(x)
+        y=self.conv(y) #bs,1,c   # 一维卷积操作，获取全局上下文信息
+        attention_weight = self.sigmoid(y) #bs,1,c  # attention_weight
+        y=attention_weight.permute(0,2,1).unsqueeze(-1) #bs,c,1,1
+        return x*y.expand_as(x), y  # y代表输出转换维度后的权重
 
         
 
@@ -44,7 +44,8 @@ class ECAAttention(nn.Module):
 if __name__ == '__main__':
     input=torch.randn(50,512,7,7)
     eca = ECAAttention(kernel_size=3)
-    output=eca(input)
+    output, atten_weight = eca(input)
     print(output.shape)
+    print(atten_weight.shape)
 
     

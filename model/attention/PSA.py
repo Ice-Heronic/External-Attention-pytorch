@@ -58,21 +58,22 @@ class PSA(nn.Module):
         SE_out=SE_out.expand_as(SPC_out)
 
         #Step3:Softmax
-        softmax_out=self.softmax(SE_out)
+        softmax_out=self.softmax(SE_out)     # bs,s,ci,h,w
 
         #Step4:SPA
         PSA_out=SPC_out*softmax_out
         PSA_out=PSA_out.view(b,-1,h,w)
 
-        return PSA_out
+        return PSA_out, softmax_out  # also return the attention weights
 
 
 if __name__ == '__main__':
     input=torch.randn(50,512,7,7)
     psa = PSA(channel=512,reduction=8)
-    output=psa(input)
-    a=output.view(-1).sum()
+    output, weights = psa(input)
+    a=output.detach().view(-1).sum()
     a.backward()
     print(output.shape)
+    print(weights.shape)
 
     

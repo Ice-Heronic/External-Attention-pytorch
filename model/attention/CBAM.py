@@ -65,17 +65,24 @@ class CBAMBlock(nn.Module):
 
     def forward(self, x):
         b, c, _, _ = x.size()
-        residual=x
-        out=x*self.ca(x)
-        out=out*self.sa(out)
-        return out+residual
+        residual= x
+        out_ca = x*self.ca(x)
+        out = out_ca*self.sa(out_ca)
+
+        # 输出注意力权重
+        attn_weights_ca = self.ca(x)  # channel attention
+        attn_weights_sa = self.sa(out)  # spatial attention
+
+        return out+residual, attn_weights_ca, attn_weights_sa
 
 
 if __name__ == '__main__':
     input=torch.randn(50,512,7,7)
     kernel_size=input.shape[2]
     cbam = CBAMBlock(channel=512,reduction=16,kernel_size=kernel_size)
-    output=cbam(input)
+    output, ca_weights, sa_weights=cbam(input)
     print(output.shape)
+    print(ca_weights.shape)
+    print(sa_weights.shape)
 
     

@@ -23,7 +23,7 @@ class ChannelAttention(nn.Module):
             self.ca.add_module('bn%d'%i,nn.BatchNorm1d(gate_channels[i+1]))
             self.ca.add_module('relu%d'%i,nn.ReLU())
         self.ca.add_module('last_fc',nn.Linear(gate_channels[-2],gate_channels[-1]))
-        
+
 
     def forward(self, x) :
         res=self.avgpool(x)
@@ -79,15 +79,15 @@ class BAMBlock(nn.Module):
         b, c, _, _ = x.size()
         sa_out=self.sa(x)
         ca_out=self.ca(x)
-        weight=self.sigmoid(sa_out+ca_out)
+        weight=self.sigmoid(sa_out+ca_out)  # 得到的权重矩阵是spatial attention和channel attention的加权和
         out=(1+weight)*x
-        return out
+        return out, weight
 
 
 if __name__ == '__main__':
     input=torch.randn(50,512,7,7)
     bam = BAMBlock(channel=512,reduction=16,dia_val=2)
-    output=bam(input)
+    output, attn_weight=bam(input)
     print(output.shape)
+    print(attn_weight.shape)
 
-    

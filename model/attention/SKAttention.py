@@ -53,9 +53,9 @@ class SKAttention(nn.Module):
 
         ### fuse
         V=(attention_weughts*feats).sum(0)
-        return V
 
-        
+        # return both V and attention weights
+        return V, attention_weughts
 
 
 
@@ -63,7 +63,9 @@ class SKAttention(nn.Module):
 if __name__ == '__main__':
     input=torch.randn(50,512,7,7)
     se = SKAttention(channel=512,reduction=8)
-    output=se(input)
+    output,attn_weights=se(input)
     print(output.shape)
+    print(attn_weights.shape)  # torch.Size([4, 50, 512, 1, 1]), attn_weights 表示了每个样本在每个通道上，使用不同尺寸[1,3,5,7]的卷积核计算得到的注意力权重。
+
 
     

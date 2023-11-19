@@ -84,7 +84,8 @@ class ResNet(nn.Module):
         
     
     def _make_layer(self,block,channel,blocks,stride=1):
-        # downsample 主要用来处理H(x)=F(x)+x中F(x)和x的channel维度不匹配问题，即对残差结构的输入进行升维，在做残差相加的时候，必须保证残差的纬度与真正的输出维度（宽、高、以及深度）相同
+        # downsample 主要用来处理H(x)=F(x)+x
+        # 中F(x)和x的channel维度不匹配问题，即对残差结构的输入进行升维，在做残差相加的时候，必须保证残差的纬度与真正的输出维度（宽、高、以及深度）相同
         # 比如步长！=1 或者 in_channel!=channel&self.expansion
         downsample = None
         if(stride!=1 or self.in_channel!=channel*block.expansion):
